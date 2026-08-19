@@ -8,6 +8,7 @@ import { DropZone } from '@/components/intake/drop-zone';
 import { Hero } from '@/components/intake/hero';
 import { SamplePicker } from '@/components/intake/sample-picker';
 import { ScanStage } from '@/components/pipeline/scan-stage';
+import { ReportView } from '@/components/report/report-view';
 import { useAnalysis } from '@/lib/use-analysis';
 import type { SampleId } from '@/lib/types';
 
@@ -42,7 +43,7 @@ export function Experience({ mock }: { mock: boolean }) {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="print-hide border-b border-[var(--rule)]">
+      <header className="border-b border-[var(--rule)]">
         <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
           <span className="u-mono text-[var(--ink)]">Clause</span>
           {mock ? (
@@ -91,20 +92,7 @@ export function Experience({ mock }: { mock: boolean }) {
 
           {screen === 'report' && state.report ? (
             <motion.div key="report" {...fade}>
-              <p className="u-mono text-[var(--registrar)]">Report</p>
-              <h1 className="u-display mt-3 text-28 text-[var(--ink)] sm:text-40">
-                {state.report.title}
-              </h1>
-              <p className="mt-4 max-w-[62ch] text-17 text-[var(--ink-soft)]">
-                {state.report.summary}
-              </p>
-              <p className="u-mono mt-6 text-[var(--ink-soft)]">
-                Score {state.report.score} · {state.report.findings.length} findings ·{' '}
-                {state.report.clauses.length} clauses
-              </p>
-              <Button className="mt-8" onClick={reset}>
-                Review another document
-              </Button>
+              <ReportView report={state.report} onReset={reset} />
             </motion.div>
           ) : null}
 
@@ -124,7 +112,9 @@ export function Experience({ mock }: { mock: boolean }) {
         </AnimatePresence>
       </main>
 
-      <footer className="border-t border-[var(--rule)]">
+      {/* Screen only: on paper the report carries its own disclaimer block, and
+          two copies at the end of a printout reads as a mistake. */}
+      <footer className="print-hide border-t border-[var(--rule)]">
         <div className="mx-auto w-full max-w-[1180px] px-5 py-5 sm:px-8">
           <Disclaimer />
         </div>

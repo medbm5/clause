@@ -148,12 +148,13 @@ body {
     --ink: #000000;
     --ink-soft: #333333;
     --rule: #999999;
+    --registrar: #000000;
   }
 
   html,
   body {
     background: #fff;
-    font-size: 11pt;
+    font-size: 10.5pt;
   }
 
   .u-paper {
@@ -167,5 +168,50 @@ body {
 
   .print-break-avoid {
     break-inside: avoid;
+  }
+
+  /* The gutter is a screen affordance. On paper the reader wants one column:
+     each clause followed by its findings, fully expanded, in reading order.
+     Unwinding the grid to plain blocks does exactly that, because the gutter
+     cell is already the next sibling of its clause in the DOM. */
+  [data-marked-grid],
+  [data-marked-grid] > *,
+  [data-clause-row],
+  [data-clause-row] > * {
+    display: block !important;
+  }
+
+  [data-paper-field] {
+    display: none !important;
+  }
+
+  [data-clause-row] {
+    break-inside: avoid;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 6pt;
+    margin-bottom: 6pt;
+  }
+
+  [data-gutter] {
+    margin-left: 18pt;
+    padding: 0 !important;
+  }
+
+  /* Underlines are drawn with SVG strokes, which browsers drop unless asked. */
+  [data-underline] path {
+    stroke-dashoffset: 0 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  [data-underline],
+  [data-finding-panel] span[style],
+  [data-gutter] span[style] {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  a[href]::after {
+    content: '';
   }
 }

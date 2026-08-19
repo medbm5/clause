@@ -31,6 +31,7 @@ function GutterFlag({
   onToggle,
   onHover,
   index,
+  stagger,
 }: {
   finding: Finding;
   clause: Clause | undefined;
@@ -39,8 +40,16 @@ function GutterFlag({
   onToggle: () => void;
   onHover: (key: string | null) => void;
   index: number;
+  /** Stagger only while findings are arriving, and only for the first few. */
+  stagger: boolean;
 }) {
   const reduceMotion = useReducedMotion();
+
+  // The 180ms stagger exists for the case where one batch returns several
+  // findings in the same tick. It must be capped and it must not apply on the
+  // report: an uncapped index*180ms left the eleventh flag invisible for 1.8s,
+  // which also meant it was missing from a print taken before then.
+  const delay = stagger ? Math.min(index, 4) * 0.18 : 0;
 
   return (
     <motion.div
@@ -49,7 +58,7 @@ function GutterFlag({
       transition={
         reduceMotion
           ? { duration: 0 }
-          : { type: 'spring', stiffness: 420, damping: 34, delay: index * 0.18 }
+          : { type: 'spring', stiffness: 420, damping: 34, delay }
       }
       className={cn(
         'border-l-2 pl-3 transition-colors duration-[120ms]',
@@ -207,9 +216,13 @@ export function MarkedPage({
        columns must come from utility classes rather than an inline style,
        because an inline `grid-template-columns` cannot be overridden at a
        breakpoint and the mobile collapse would silently never happen. */
-    <div className="relative grid grid-cols-1 gap-y-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-x-7 lg:gap-y-0">
+    <div
+      data-marked-grid
+      className="relative grid grid-cols-1 gap-y-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-x-7 lg:gap-y-0"
+    >
       {/* The paper field spans only the document column. 328px = gutter + gap. */}
       <div
+        data-paper-field
         aria-hidden
         className="u-paper absolute inset-y-0 left-0 right-0 lg:right-[328px]"
       />
@@ -225,6 +238,7 @@ export function MarkedPage({
           return (
             <div
               key={clause.id}
+              data-clause-row
               className="border-b border-[var(--rule)] last:border-b-0 lg:col-span-2 lg:grid lg:grid-cols-subgrid lg:border-b-0"
             >
               <div className="relative lg:col-start-1 lg:border-b lg:border-[var(--rule)]">
@@ -239,7 +253,10 @@ export function MarkedPage({
               </div>
 
               {clauseFindings.length > 0 ? (
-                <div className="space-y-4 px-5 pb-5 sm:px-7 lg:col-start-2 lg:px-0 lg:py-5">
+                <div
+                  data-gutter
+                  className="space-y-4 px-5 pb-5 sm:px-7 lg:col-start-2 lg:px-0 lg:py-5"
+                >
                   {clauseFindings.map((finding) => {
                     const key = findingKey(finding);
                     return (
@@ -248,6 +265,7 @@ export function MarkedPage({
                         finding={finding}
                         clause={clause}
                         index={arrivalOrder.get(key) ?? 0}
+                        stagger={scanning}
                         expanded={expandedKey === key}
                         highlighted={hoveredKey === key}
                         onHover={setHoveredKey}

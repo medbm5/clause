@@ -91,3 +91,19 @@ A running log of what was tried, what broke, and what not to try again.
 - Verified in Chrome mid-run: 16 clauses on screen, 4 flags landed, 4 underline
   groups, a two-line wrapping quote underlined correctly across both fragments,
   and the gutter flag aligned to its clause. No console errors.
+
+## Phase 5
+
+- Reading the generated print PDF caught a bug no screenshot would have: the
+  eleventh gutter flag and its finding were entirely absent from page 12. Cause
+  was the uncapped `index * 180ms` fly-in delay, not anything print-specific.
+  Printing turns out to be a good test of "is everything actually rendered".
+- Counting PDF pages by the first `/Count n` in the file is wrong — the page tree
+  is nested, and this document reports `/Count 8`, `/Count 4`, `/Count 12`. The
+  real total was 12, so an early "output is truncated" conclusion was wrong.
+- Playwright's `locator.count()` counts DOM presence, not visibility, so
+  `[data-finding-panel]` legitimately reads 11 on screen: ten hidden print-only
+  copies plus one expanded.
+- Verified: report at 1280px and 380px with no horizontal scroll at either, and a
+  12-page print PDF with every finding expanded inline, underlines preserved in
+  severity colour, and the disclaimer plus demo-data notice on the last page.

@@ -168,3 +168,37 @@ Newest phase last.
 - **The stage list sits in the gutter beside the heading, not beside the first
   clause.** Putting it in a grid row with the document column made that row as
   tall as the stage list and opened a ~300px dead gap above the first clause.
+
+## Phase 5 — Report
+
+- **`severity-key.tsx` is a legend, not a tally.** The verdict header already
+  states the counts in mono, as the brief specifies; printing the same three
+  numbers again 200px away read as a bug. The key instead shows all five levels —
+  including the ones this document does not contain — which is what makes the
+  margin colours readable.
+- **The flag fly-in stagger is capped at four steps and applies only while the
+  scan is running.** As written it was `index * 180ms` over the global arrival
+  order, so with eleven findings the last flag sat invisible for 1.8s and
+  re-animated on the report screen even though the user had already watched it
+  land. The bug surfaced in the print output, where the eleventh finding was
+  simply blank. The 180ms stagger still does its real job: separating several
+  findings that arrive from one batch in the same tick.
+- **An expanded finding grows its grid row, leaving whitespace beside it in the
+  document column.** The alternative is to float the panel over the following
+  rows, which risks overlapping the next flags and running off the end of the
+  page. A margin note longer than the clause it annotates is what a marked-up
+  document actually looks like, so the row grows.
+- **Print unwinds the grid to plain blocks rather than restyling it.** Because a
+  clause's gutter cell is already its next DOM sibling, `display: block` alone
+  produces exactly the wanted paper order — clause, then its findings, expanded —
+  with no duplicate markup for print.
+- **Every finding panel is rendered twice: once for screen inside
+  `AnimatePresence`, once in a `hidden print:block` wrapper.** Print needs all of
+  them expanded while screen needs one at a time, and rendering the print copies
+  unconditionally means the printed output never depends on what the user
+  happened to have open.
+- **`Copy summary` produces worst-first plain text with the disclaimer attached**,
+  and appends an explicit demo-data line in mock mode — the text gets read away
+  from the page, so its provenance has to travel with it.
+- **The footer disclaimer is `print-hide` and the report carries its own printed
+  disclaimer block.** Both printing meant two copies at the end of the printout.
