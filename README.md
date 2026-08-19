@@ -12,6 +12,11 @@ understand — a tenant, a policyholder — not for a lawyer.
 
 ---
 
+A client-facing overview, with screenshots, is in
+[`docs/Clause-product-overview.pdf`](docs/Clause-product-overview.pdf). It is
+generated from `docs/product-overview.source.html` and the captures in
+`docs/screenshots/`.
+
 ## Running it
 
 ```bash

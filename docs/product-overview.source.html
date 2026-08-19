@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Clause — product overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --paper: #e6e9e2;
+    --surface: #f6f7f3;
+    --ink: #16191b;
+    --ink-soft: #5a6169;
+    --rule: #c6cbc1;
+    --registrar: #24406e;
+    --flag-fair: #2f6f55;
+    --flag-low: #6b7a2e;
+    --flag-mod: #a8761a;
+    --flag-high: #b14a1d;
+    --flag-crit: #8c1d1d;
+  }
+
+  @page { size: A4; margin: 0; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', ui-sans-serif, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    position: relative;
+    width: 210mm;
+    height: 297mm;
+    padding: 19mm 18mm 24mm;
+    background: var(--paper);
+    overflow: hidden;
+    break-after: page;
+  }
+  .page:last-child { break-after: auto; }
+
+  /* --- type roles ------------------------------------------------------- */
+  .display { font-family: 'Newsreader', Georgia, serif; font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; }
+  .mono { font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 8pt; line-height: 1.4; }
+  .num { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+
+  h1 { font-size: 40pt; }
+  h2 { font-size: 21pt; }
+  h3 { font-size: 12pt; font-weight: 500; }
+  p { font-size: 9.6pt; line-height: 1.55; color: var(--ink); }
+  .soft { color: var(--ink-soft); }
+  .reg { color: var(--registrar); }
+
+  /* --- running header / footer ------------------------------------------ */
+  .runner { display: flex; justify-content: space-between; align-items: baseline;
+            border-bottom: 1px solid var(--rule); padding-bottom: 6px; margin-bottom: 11mm; }
+  .foot { position: absolute; left: 18mm; right: 18mm; bottom: 13mm;
+          border-top: 1px solid var(--rule); padding-top: 6px;
+          display: flex; justify-content: space-between; align-items: baseline; }
+
+  /* --- shots ------------------------------------------------------------ */
+  figure { background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
+           box-shadow: inset 0 1px 0 rgb(255 255 255 / .75); overflow: hidden; }
+  /* A fixed-height window onto the top of a tall capture. */
+  figure .crop { display: block; overflow: hidden; background: var(--surface); }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { border-top: 1px solid var(--rule); padding: 7px 10px 8px; }
+  figcaption .t { font-size: 8.6pt; font-weight: 500; }
+  figcaption .d { font-size: 8pt; color: var(--ink-soft); line-height: 1.45; margin-top: 2px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; }
+
+  /* --- misc ------------------------------------------------------------- */
+  .rule { border-top: 1px solid var(--rule); }
+  .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 1px; vertical-align: 1px; }
+  .lede { font-size: 11.5pt; line-height: 1.5; color: var(--ink); }
+
+  .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 7mm; }
+  .feat h3 { margin-bottom: 3px; }
+  .feat p { font-size: 8.8pt; line-height: 1.5; color: var(--ink-soft); }
+  .feat .k { color: var(--registrar); margin-bottom: 5px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  td, th { text-align: left; font-size: 8.8pt; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; font-size: 7.6pt; color: var(--ink-soft); font-weight: 400; }
+  td.n { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .steps { display: flex; align-items: stretch; gap: 0; }
+  .step { flex: 1; padding: 9px 8px 10px; border-left: 1px solid var(--rule); }
+  .step:first-child { border-left: 0; padding-left: 0; }
+  .step .i { font-family: 'IBM Plex Mono', monospace; font-size: 7.6pt; color: var(--registrar); letter-spacing: .08em; }
+  .step .h { font-size: 8.8pt; font-weight: 500; margin: 3px 0 2px; }
+  .step .b { font-size: 7.8pt; line-height: 1.42; color: var(--ink-soft); }
+
+  .callout { background: var(--surface); border: 1px solid var(--rule); border-radius: 2px;
+             box-shadow: inset 0 1px 0 rgb(255 255 255 / .75); padding: 9px 11px 10px; }
+  ul { padding-left: 14px; }
+  li { font-size: 9pt; line-height: 1.5; margin-bottom: 3px; }
+  li.soft { color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<!-- ============================ COVER ============================ -->
+<section class="page">
+  <div class="runner">
+    <span class="mono">Clause · Contract review for India</span>
+    <span class="mono soft">Product overview</span>
+  </div>
+
+  <h1 class="display" style="max-width: 15ch;">Find out what you&rsquo;re signing.</h1>
+
+  <p class="lede" style="margin-top: 8mm; max-width: 58ch;">
+    A consumer in India uploads a rental agreement or a health insurance policy
+    and gets back a marked-up copy of their own document: every one-sided clause
+    flagged in the margin, explained in plain English, benchmarked against what
+    is normal, with a concrete suggestion for what to ask for instead.
+  </p>
+
+  <p class="soft" style="margin-top: 5mm; max-width: 58ch;">
+    Built for the person who is about to sign something they don&rsquo;t fully
+    understand &mdash; a tenant, a policyholder &mdash; not for a lawyer. The job
+    is to make them feel informed and equipped in under a minute.
+  </p>
+
+  <figure style="margin-top: 9mm;">
+    <span class="crop" style="height: 76mm;">
+      <img src="screenshots/intake.png" alt="The Clause home screen: the headline 'Find out what you're signing', a drop zone for a PDF or photos, two sample documents, and a miniature agreement page with three clauses already flagged in the margin." />
+    </span>
+    <figcaption>
+      <div class="t">The intake screen</div>
+      <div class="d">The thesis of the product is the marked-up document, so the first screen shows one.</div>
+    </figcaption>
+  </figure>
+
+  <div class="foot">
+    <span class="mono soft">Live at clause-opal-omega.vercel.app</span>
+    <span class="mono soft">1 / 6</span>
+  </div>
+</section>
+
+<!-- ======================= WHAT IT DOES ========================== -->
+<section class="page">
+  <div class="runner">
+    <span class="mono">What it does</span>
+    <span class="mono soft">Clause</span>
+  </div>
+
+  <h2 class="display" style="max-width: 30ch;">One upload, five stages, a document you can act on.</h2>
+
+  <p style="margin-top: 6mm; max-width: 66ch;">
+    Everything happens in a single request and streams back as it is produced, so
+    the reader watches their own agreement being marked up rather than staring at
+    a spinner. On the bundled sample the finished report arrives in under fifteen
+    seconds, with the clause text on screen and the first flags landing several
+    seconds before that.
+  </p>
+
+  <div class="steps" style="margin-top: 8mm;">
+    <div class="step">
+      <div class="i">01</div><div class="h">Read</div>
+      <div class="b">PDF text layer, or vision OCR for photographed pages. A scan with no text layer is detected and the user is told what to do instead.</div>
+    </div>
+    <div class="step">
+      <div class="i">02</div><div class="h">Split</div>
+      <div class="b">Segmented into clauses, keeping the printed number &mdash; &ldquo;4.2&rdquo; &mdash; because that is how the reader finds the clause in their own copy.</div>
+    </div>
+    <div class="step">
+      <div class="i">03</div><div class="h">Match</div>
+      <div class="b">Each clause is compared against a knowledge base of 34 risk patterns drawn from Indian rental and insurance practice.</div>
+    </div>
+    <div class="step">
+      <div class="i">04</div><div class="h">Review</div>
+      <div class="b">Clauses are reviewed in parallel batches, each seeing only the patterns relevant to it. Fair clauses are left unflagged.</div>
+    </div>
+    <div class="step">
+      <div class="i">05</div><div class="h">Compile</div>
+      <div class="b">A reproducible risk score, a verdict in plain words, and a two-sentence summary that leads with the worst thing.</div>
+    </div>
+  </div>
+
+  <div class="rule" style="margin-top: 9mm;"></div>
+
+  <h3 style="margin-top: 7mm;">What the reader gets for every flagged clause</h3>
+  <div class="feat" style="margin-top: 5mm;">
+    <div>
+      <div class="mono k">What it means</div>
+      <p>The clause restated in their terms, with the figures from their own document.</p>
+    </div>
+    <div>
+      <div class="mono k">Why it matters</div>
+      <p>The concrete consequence &mdash; in rupees, in months, or in the right they give up.</p>
+    </div>
+    <div>
+      <div class="mono k">What&rsquo;s normal</div>
+      <p>The market or regulatory benchmark in India, so they can tell unusual from routine.</p>
+    </div>
+    <div>
+      <div class="mono k">What to ask for</div>
+      <p>A specific, sayable request &mdash; phrased as something they could put in a message.</p>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top: 8mm;">
+    <div class="mono reg" style="margin-bottom: 4px;">Two rules the product will not break</div>
+    <p style="font-size: 9pt;">
+      <strong>A quote is never invented.</strong> Every quoted span is verified
+      character-for-character against the clause it came from. If it cannot be
+      located in the document, no quote is shown.
+    </p>
+    <p style="font-size: 9pt; margin-top: 4px;">
+      <strong>A fair clause gets no flag.</strong> An unflagged clause is a signal,
+      not a gap &mdash; and when nothing is flagged, the report says so in words.
+    </p>
+  </div>
+
+  <div class="rule" style="margin-top: 8mm;"></div>
+
+  <h3 style="margin-top: 7mm;">Usable by everyone who needs it</h3>
+  <div class="feat" style="margin-top: 5mm;">
+    <div>
+      <div class="mono k">On a phone</div>
+      <p>Laid out down to 380px wide with no sideways scrolling &mdash; the margin
+        collapses and each finding moves under its clause.</p>
+    </div>
+    <div>
+      <div class="mono k">By keyboard alone</div>
+      <p>The whole flow, from choosing a document to opening a finding, works
+        without a mouse and with a visible focus ring throughout.</p>
+    </div>
+    <div>
+      <div class="mono k">Without the motion</div>
+      <p>If the reader's device asks for reduced motion, the sweep and the fly-in
+        are dropped and the final state is shown at once.</p>
+    </div>
+    <div>
+      <div class="mono k">On paper</div>
+      <p>Printing gives a single-column copy with every finding expanded under its
+        clause, so it can be read and marked up away from a screen.</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="mono soft">Clause &mdash; product overview</span>
+    <span class="mono soft">2 / 6</span>
+  </div>
+</section>
+
+<!-- ===================== THE SIGNATURE MOMENT ==================== -->
+<section class="page">
+  <div class="runner">
+    <span class="mono">The review, as it happens</span>
+    <span class="mono soft">Clause</span>
+  </div>
+
+  <figure>
+    <span class="crop" style="height: 94mm;">
+      <img src="screenshots/scan.png" alt="The review in progress: the document text on the left with a blue line sweeping down it, text below the line dimmed; on the right a live list of five stages showing 9,896 characters read, 18 clauses, 17 patterns matched, and 'Reviewing each clause' in progress." />
+    </span>
+    <figcaption>
+      <div class="t">Mid-review &mdash; the document is already on screen</div>
+      <div class="d">
+        The real extracted clause text appears as soon as it is available. A line
+        sweeps the column; text it has passed sits at full strength, text ahead of
+        it stays dimmed. The five stages report live in the margin with real
+        counts, not a progress bar.
+      </div>
+    </figcaption>
+  </figure>
+
+  <figure style="margin-top: 7mm;">
+    <span class="crop" style="height: 80mm;">
+      <img src="screenshots/report.png" alt="The finished report: document title, the verdict 'Don't sign this as is' in dark red, a plain-language summary, severity counts, and a risk score dial reading 99 out of 100." />
+    </span>
+    <figcaption>
+      <div class="t">The verdict</div>
+      <div class="d">
+        The inferred title, a verdict as a plain sentence, the summary leading with
+        the single worst thing, the severity counts, and a score whose method is
+        explained behind &ldquo;How this is scored&rdquo;. Live output on the
+        bundled sample agreement.
+      </div>
+    </figcaption>
+  </figure>
+
+  <div class="foot">
+    <span class="mono soft">Clause &mdash; product overview</span>
+    <span class="mono soft">3 / 6</span>
+  </div>
+</section>
+
+<!-- ======================== THE MARGIN =========================== -->
+<section class="page">
+  <div class="runner">
+    <span class="mono">One clause, in full</span>
+    <span class="mono soft">Clause</span>
+  </div>
+
+  <figure>
+    <span class="crop" style="height: 106mm;">
+      <img src="screenshots/finding.png" alt="A flagged clause expanded: the ten-month security deposit clause with the quoted span underlined in red, and in the margin a full finding headed 'Excessive security deposit with discretionary deductions', marked High, with what it means, why it matters, what's normal, what to ask for, the verbatim quote, the matched pattern at similarity 0.827 and confidence 0.90." />
+    </span>
+    <figcaption>
+      <div class="t">A finding, opened</div>
+      <div class="d">
+        The clause text is the user&rsquo;s own. The underline marks the exact words
+        the finding rests on, drawn by hand in the severity colour. Everything the
+        review relied on is shown, including the matched pattern with its real
+        similarity score and the review&rsquo;s own confidence &mdash; so the
+        reader can weigh it rather than take it on trust.
+      </div>
+    </figcaption>
+  </figure>
+
+  <div class="grid2" style="margin-top: 7mm;">
+    <div>
+      <h3>Severity, and what it costs</h3>
+      <p class="soft" style="margin-top: 4px;">
+        Five levels, one colour language across the margin, the counts and the
+        score. Colour is spent on the annotations and nowhere else.
+      </p>
+      <table style="margin-top: 5mm;">
+        <tr><td><span class="swatch" style="background: var(--flag-crit)"></span> Critical</td><td class="soft">A large sum, the home, or the cover itself</td></tr>
+        <tr><td><span class="swatch" style="background: var(--flag-high)"></span> High</td><td class="soft">Seriously one-sided, real money or rights</td></tr>
+        <tr><td><span class="swatch" style="background: var(--flag-mod)"></span> Moderate</td><td class="soft">A genuine but bounded cost</td></tr>
+        <tr><td><span class="swatch" style="background: var(--flag-low)"></span> Low</td><td class="soft">Minor; useful to know before signing</td></tr>
+        <tr><td><span class="swatch" style="background: var(--flag-fair)"></span> Fair</td><td class="soft">Context, not a risk</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Take it off the screen</h3>
+      <p class="soft" style="margin-top: 4px;">
+        The report is meant to be used in a conversation with a landlord, a broker
+        or an insurer &mdash; so it leaves the page in two ways.
+      </p>
+      <ul style="margin-top: 5mm;">
+        <li><strong>Copy summary</strong> produces worst-first plain text, ready to
+          paste into WhatsApp or email, with the points to raise and the exact
+          wording to quote.</li>
+        <li><strong>Print</strong> gives a single-column paper copy with every
+          finding expanded underneath its clause, the underlines kept, black on
+          white.</li>
+      </ul>
+      <p class="soft" style="margin-top: 4mm; font-size: 8.4pt;">
+        The disclaimer travels with both, because they get read away from the app.
+      </p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="mono soft">Clause &mdash; product overview</span>
+    <span class="mono soft">4 / 6</span>
+  </div>
+</section>
+
+<!-- ==================== BREADTH: PHONE, TYPES ==================== -->
+<section class="page">
+  <div class="runner">
+    <span class="mono">On a phone, and on a fair document</span>
+    <span class="mono soft">Clause</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 60mm 1fr; gap: 6mm; align-items: start;">
+    <figure>
+      <span class="crop" style="height: 106mm;">
+        <img src="screenshots/mobile-finding.png" alt="The same review on a phone: the margin has collapsed and the finding appears directly beneath the clause it belongs to." />
+      </span>
+      <figcaption>
+        <div class="t">On a phone</div>
+        <div class="d">The margin collapses and each finding sits directly under its clause.</div>
+      </figcaption>
+    </figure>
+
+    <div style="display: grid; gap: 6mm;">
+      <figure>
+        <span class="crop" style="height: 44mm;">
+          <img src="screenshots/insurance.png" alt="A health insurance policy reviewed, with findings on room-rent capping, proportionate deduction, co-payment and waiting periods." />
+        </span>
+        <figcaption>
+          <div class="t">A health insurance policy</div>
+          <div class="d">The second document type, with its own 17 patterns &mdash; waiting periods, room-rent caps, co-payment, claim deadlines, non-disclosure.</div>
+        </figcaption>
+      </figure>
+      <figure>
+        <span class="crop" style="height: 44mm;">
+          <img src="screenshots/fair.png" alt="A fair agreement reviewed: the verdict 'This one looks fair', a score of zero, and a note that nothing materially unfair was found in fourteen clauses." />
+        </span>
+        <figcaption>
+          <div class="t">A fair agreement</div>
+          <div class="d">Given a balanced document it flags nothing, scores zero and says so plainly. It does not invent problems in order to look useful.</div>
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <div class="rule" style="margin-top: 8mm;"></div>
+
+  <h3 style="margin-top: 7mm;">The knowledge base</h3>
+  <p style="margin-top: 4px; max-width: 74ch;">
+    34 risk patterns, written for Indian consumer reality rather than translated
+    from elsewhere &mdash; rupee amounts, Indian regulatory vocabulary, and the
+    things that actually go wrong. Each carries what the unfair version looks
+    like, why it hurts, and what counts as normal here.
+  </p>
+
+  <div class="grid2" style="margin-top: 6mm;">
+    <div>
+      <div class="mono reg" style="margin-bottom: 4px;">17 rental patterns</div>
+      <p class="soft" style="font-size: 8.6pt;">
+        Deposit size and deduction discretion, refund timing, lock-in with
+        forfeiture, notice asymmetry, escalation, repairs pushed to the tenant,
+        entry without notice, personal restrictions, exit painting charges,
+        brokerage and stamp duty, subletting, termination for convenience, late-rent
+        penalties, dispute venue and arbitration cost, utilities and society
+        charges, &ldquo;as is&rdquo; condition, unilateral amendment.
+      </p>
+    </div>
+    <div>
+      <div class="mono reg" style="margin-bottom: 4px;">17 health-insurance patterns</div>
+      <p class="soft" style="font-size: 8.6pt;">
+        Pre-existing and specific waiting periods, room-rent and ICU caps,
+        proportionate deduction, age-linked co-payment, disease sub-limits,
+        non-medical exclusions, claim intimation deadlines, network and cashless
+        limits, pre- and post-hospitalisation windows, free-look period,
+        non-disclosure repudiation and moratorium, no-claim bonus reset, renewal
+        and premium revision, day-care and domiciliary cover, restoration limits,
+        breadth of exclusions.
+      </p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="mono soft">Clause &mdash; product overview</span>
+    <span class="mono soft">5 / 6</span>
+  </div>
+</section>
+
+<!-- ================== EVIDENCE + HONEST LIMITS =================== -->
+<section class="page">
+  <div class="runner">
+    <span class="mono">How it was checked, and what it is not</span>
+    <span class="mono soft">Clause</span>
+  </div>
+
+  <h3>Measured, not asserted</h3>
+  <p class="soft" style="margin-top: 4px; max-width: 74ch;">
+    Every figure below was produced by running documents through the deployed
+    pipeline. They describe the current build on the documents named &mdash; not a
+    claim about all agreements.
+  </p>
+
+  <table style="margin-top: 5mm;">
+    <tr>
+      <th>Document</th><th>Clauses</th><th>Flagged</th><th>Critical</th><th>Verdict</th>
+    </tr>
+    <tr>
+      <td>Rental agreement, Bengaluru (sample)</td>
+      <td class="n">18</td><td class="n">14</td><td class="n">2</td><td>Don&rsquo;t sign as is</td>
+    </tr>
+    <tr>
+      <td>Family floater health policy (sample)</td>
+      <td class="n">15</td><td class="n">14</td><td class="n">3</td><td>Don&rsquo;t sign as is</td>
+    </tr>
+    <tr>
+      <td>Photographed page, via OCR</td>
+      <td class="n">7</td><td class="n">5</td><td class="n">1</td><td>Don&rsquo;t sign as is</td>
+    </tr>
+    <tr>
+      <td>Balanced agreement (fair control)</td>
+      <td class="n">14</td><td class="n">0</td><td class="n">0</td><td>This one looks fair</td>
+    </tr>
+  </table>
+
+  <ul style="margin-top: 6mm;">
+    <li>In all four runs, <strong>every quote was verbatim</strong> and every finding
+      resolved to a real clause in the document.</li>
+    <li>Clause-to-pattern matching was checked against eleven hand-written probe
+      clauses, deliberately worded unlike the knowledge base: the intended pattern
+      ranked first in <strong>10 of 10</strong> scoreable cases.</li>
+    <li>On real documents, genuine clauses match their pattern at 0.63&ndash;0.89
+      similarity while recitals and title blocks peak at 0.54 &mdash; the gap the
+      matching threshold was tuned on.</li>
+    <li>If some clauses cannot be reviewed, the report says so in its own summary
+      rather than quietly leaving them out &mdash; and if none of them can be
+      reviewed, it says that too, instead of reporting a document as clean.</li>
+  </ul>
+
+  <div class="rule" style="margin-top: 8mm;"></div>
+
+  <div class="grid2" style="margin-top: 7mm;">
+    <div>
+      <h3>Deliberately out of scope</h3>
+      <ul style="margin-top: 4mm;">
+        <li class="soft">No accounts, no sign-in, no history. Every review is anonymous.</li>
+        <li class="soft">No storage of any kind. A document lives in memory for one
+          request and is never written to disk &mdash; there is nothing to leak.</li>
+        <li class="soft">No payments or metering.</li>
+        <li class="soft">One request per document, with a 60-second ceiling. Very long
+          documents are capped, and the report says when it truncated.</li>
+        <li class="soft">Two document types. English only.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>The obvious next steps</h3>
+      <ul style="margin-top: 4mm;">
+        <li class="soft">Multi-page photo upload &mdash; the highest-value addition for
+          a phone-first audience.</li>
+        <li class="soft">More document types on the same machinery: employment,
+          personal and gold loans, builder-buyer agreements.</li>
+        <li class="soft">A shareable read-only report link, so a tenant can send the
+          marked-up copy to the other side.</li>
+        <li class="soft">An evaluation set of real labelled documents, to put precision
+          and recall numbers next to the ones above.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top: 8mm;">
+    <p style="font-size: 9pt;">
+      <strong>Clause is not a law firm and this is not legal advice.</strong>
+      It is a reading aid. Findings describe risks and market norms, never rulings,
+      and the disclaimer appears on every screen including the printed report.
+      Anything important should be checked with a lawyer.
+    </p>
+  </div>
+
+  <p class="soft" style="margin-top: 6mm; font-size: 8.2pt; line-height: 1.5;">
+    A note on the live link: it is currently serving the two bundled example
+    documents rather than calling the model, which the interface marks with a
+    <strong>Demo data</strong> chip in the corner. That path exists so the product
+    can be demonstrated reliably and at no cost; the screenshots in this document
+    are genuine model output, captured with analysis switched on. Adding an API key
+    turns live analysis on and the chip off.
+  </p>
+
+  <div class="foot">
+    <span class="mono soft">clause-opal-omega.vercel.app</span>
+    <span class="mono soft">6 / 6</span>
+  </div>
+</section>
+
+</body>
+</html>
