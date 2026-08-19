@@ -107,9 +107,18 @@ function splitOnBoundaries(text: string): Draft[] {
     const boundary = boundaryFor(line);
 
     if (boundary) {
-      // A heading line immediately followed by a numbered line belongs to that
-      // clause, not to a clause of its own.
-      if (current && current.body.length === 0 && current.heading && !current.number && boundary.number) {
+      // A bare heading line immediately followed by a numbered line belongs to
+      // that clause, not to a clause of its own. But only when the numbered line
+      // has no heading of its own — if it does, these are two different clauses
+      // and folding them would silently discard the real printed heading.
+      if (
+        current &&
+        current.body.length === 0 &&
+        current.heading &&
+        !current.number &&
+        boundary.number &&
+        !boundary.heading
+      ) {
         current.number = boundary.number;
         if (boundary.rest) current.body.push(boundary.rest);
         continue;

@@ -25,38 +25,63 @@ export function normaliseDocumentText(raw: string): string {
     .trim();
 }
 
+/** Looks like a clause opening, and so must never be stripped as furniture. */
+function isClauseLike(line: string): boolean {
+  return /^\d+(\.\d+)*[.)]\s+\S/.test(line);
+}
+
+/** Collapses digit runs so "Page 2" and "Page 3" share one stem. */
+function stemOf(line: string): string {
+  return line.replace(/\d+/g, '#');
+}
+
+/** Does this line read as a page stamp once its numbers are collapsed? */
+function looksLikePageStamp(line: string): boolean {
+  const stem = stemOf(line);
+  return (
+    /(^|[\s—\-|(\[])page\s*#/i.test(stem) ||
+    /^#$/.test(stem) ||
+    /^#\s*(of|\/)\s*#$/i.test(stem)
+  );
+}
+
 /**
- * Drops short lines that recur across the document — running headers, footers,
- * and "Page 3 of 8" stamps. A line has to appear at least three times and on a
- * meaningful share of pages before it is treated as furniture, so a genuinely
- * repeated clause heading survives.
+ * Drops short lines that recur across the document — running headers, footers
+ * and page stamps.
+ *
+ * Two rules, because one is not enough. Identical lines are caught by counting
+ * them. But the commonest real footer is "Some Title — Page 2", which is unique
+ * on every page and therefore invisible to counting; those are caught by
+ * counting digit-collapsed stems instead. The stem rule is deliberately narrow —
+ * the line must also read as a page stamp — because "Annexure 1" and
+ * "Annexure 2" share a stem too and are real content.
  */
 function stripRepeatedFurniture(text: string): string {
   const lines = text.split('\n');
-  const counts = new Map<string, number>();
+  const exact = new Map<string, number>();
+  const stems = new Map<string, number>();
 
-  for (const line of lines) {
-    const key = line.trim();
-    if (!key || key.length > 80) continue;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line || line.length > 80) continue;
+    exact.set(line, (exact.get(line) ?? 0) + 1);
+    const stem = stemOf(line);
+    stems.set(stem, (stems.get(stem) ?? 0) + 1);
   }
 
-  const threshold = Math.max(3, Math.ceil(lines.length / 60));
-  const furniture = new Set<string>();
-  for (const [key, count] of counts) {
-    if (count < threshold) continue;
-    // Page numbers and short all-caps stamps are furniture; a repeated sentence
-    // with real punctuation is probably content.
-    const looksStructural = /^(page\s*)?\d+(\s*(of|\/)\s*\d+)?$/i.test(key) || key.length <= 60;
-    if (looksStructural) furniture.add(key);
-  }
+  const repeatThreshold = Math.max(3, Math.ceil(lines.length / 60));
 
   return lines
-    .filter((line) => {
-      const key = line.trim();
-      if (!furniture.has(key)) return true;
-      // Never strip something that carries clause-like structure.
-      return /^\d+(\.\d+)*[.)]\s+\S/.test(key);
+    .filter((raw) => {
+      const line = raw.trim();
+      if (!line || line.length > 80) return true;
+      if (isClauseLike(line)) return true;
+
+      const repeatedExactly = (exact.get(line) ?? 0) >= repeatThreshold;
+      const repeatedStem =
+        (stems.get(stemOf(line)) ?? 0) >= 2 && looksLikePageStamp(line);
+
+      return !(repeatedExactly || repeatedStem);
     })
     .join('\n');
 }

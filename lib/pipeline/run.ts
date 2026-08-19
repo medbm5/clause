@@ -1,4 +1,4 @@
-import { CONFIG, isMockMode } from '@/lib/config';
+import { CONFIG, isMockMode, SAMPLE_DOCS } from '@/lib/config';
 import { extractDocument, RecoverableExtractError } from '@/lib/extract/index';
 import { PATTERNS_BY_ID } from '@/lib/kb/patterns';
 import { guessSampleFromFilename, replayFixture } from '@/lib/mock/fixtures';
@@ -22,11 +22,6 @@ export interface RunInput {
   file?: { bytes: Uint8Array; mimeType: string; name: string };
   sample?: SampleId;
 }
-
-const SAMPLE_FILES: Record<SampleId, string> = {
-  rental: 'rental-agreement-bengaluru.pdf',
-  insurance: 'health-policy-family-floater.pdf',
-};
 
 export async function runPipeline(input: RunInput, emit: EmitFn): Promise<void> {
   const started = Date.now();
@@ -193,7 +188,7 @@ async function loadSample(
   const { join } = await import('node:path');
   const { extractPdf } = await import('@/lib/extract/pdf');
 
-  const path = join(process.cwd(), 'public', 'samples', SAMPLE_FILES[sample]);
+  const path = join(process.cwd(), 'public', 'samples', SAMPLE_DOCS[sample].file);
   const buffer = await readFile(path);
   const text = await extractPdf(new Uint8Array(buffer));
   const truncated = text.length > CONFIG.limits.maxChars;

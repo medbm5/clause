@@ -1,33 +1,18 @@
 'use client';
 
 import { FileText } from 'lucide-react';
+import { SAMPLE_DOCS } from '@/lib/config';
 import type { SampleId } from '@/lib/types';
 
 /**
- * The one-click path. `clauses` is the number of numbered clauses each bundled
- * PDF actually contains, and `pages` its real page count — both are asserted
- * against the generated files by `scripts/make-samples.ts`, so these labels
+ * The one-click path. Page and clause counts come from `SAMPLE_DOCS`, the same
+ * constant `scripts/make-samples.ts` asserts its output against, so these labels
  * cannot drift away from the documents they describe.
  */
-const SAMPLES: Array<{
-  id: SampleId;
-  title: string;
-  pages: number;
-  clauses: number;
-}> = [
-  {
-    id: 'rental',
-    title: '11-month rental agreement, Bengaluru',
-    pages: 4,
-    clauses: 16,
-  },
-  {
-    id: 'insurance',
-    title: 'Family floater health policy',
-    pages: 4,
-    clauses: 14,
-  },
-];
+const SAMPLES = (Object.keys(SAMPLE_DOCS) as SampleId[]).map((id) => ({
+  id,
+  ...SAMPLE_DOCS[id],
+}));
 
 export function SamplePicker({
   onSelect,
@@ -56,7 +41,7 @@ export function SamplePicker({
             />
             <span className="min-w-0">
               <span className="block text-15 font-medium leading-[1.35] text-[var(--ink)]">
-                {sample.title}
+                {sample.label}
               </span>
               <span className="u-mono mt-1 block text-[var(--ink-soft)]">
                 {sample.pages} pages · {sample.clauses} clauses

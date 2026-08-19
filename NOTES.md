@@ -107,3 +107,64 @@ A running log of what was tried, what broke, and what not to try again.
 - Verified: report at 1280px and 380px with no horizontal scroll at either, and a
   12-page print PDF with every finding expanded inline, underlines preserved in
   severity colour, and the disclaimer plus demo-data notice on the last page.
+
+## Phase 6 — what the live runs actually showed
+
+Three real bugs, all found by running documents through rather than by reading code.
+
+1. **Page footers became clause headings.** pdf-lib writes the running footer
+   before the page body in the content stream, so "RENTAL AGREEMENT — Page 2"
+   arrived ahead of clause 7 and was parsed as a Title-Case heading. Clause 7
+   lost its real heading ("NOTICE PERIOD") and a spurious 18th clause appeared,
+   which in turn produced a duplicate finding attributed to an unnumbered clause.
+   The original furniture stripper counted identical lines, and these lines are
+   unique per page — so it never had a chance. Fixed by also counting
+   digit-collapsed stems ("… — Page #") and requiring the line to read as a page
+   stamp before stripping.
+2. **A numbered line's own heading could be discarded.** The rule that folds a
+   bare heading line into the following numbered line did not check whether the
+   numbered line carried a heading of its own. It now does.
+3. **A `str.replace` in a scripted edit silently did nothing** when the target
+   text did not match exactly, and the "fix" appeared to be applied while the file
+   was unchanged — which sent me chasing a phantom regex bug. Anything scripted
+   must assert it changed the file; the Edit tool fails loudly instead.
+
+Measured retrieval, both samples, unfiltered top-1 per clause:
+
+    rental    substantive clauses 0.646–0.875 · recitals/title/execution 0.422–0.536
+    insurance substantive clauses 0.626–0.891 · title block 0.481 · preamble 0.408
+
+Per-clause match counts by floor (rental, topK 5): 0.28 → 5.0/clause, 0 clauses
+with no match; 0.45 → 4.5/clause, 2 clauses with none (both recitals); 0.55 →
+2.7/clause and real signal starting to drop. Hence 0.45.
+
+Live results after tuning:
+
+| run | clauses | findings | critical | confidence | quotes verbatim | clauseIds |
+|---|---|---|---|---|---|---|
+| rental sample (PDF) | 18 | 15 | 2 | 0.85–0.95 | all | all valid |
+| insurance sample (PDF) | 15 | 14 | 3 | 0.75–0.90 | all | all valid |
+| phone photo (JPEG, OCR) | 7 | 5 | 1 | 0.85–0.95 | all | all valid |
+
+Every problem deliberately planted in the samples was found: ten-month deposit
+with discretionary deductions, nine-month lock-in forfeiting the whole deposit,
+entry without notice, all repairs on the tenant, 3-months-against-15-days notice;
+and 48-month PED wait, 1% room-rent cap, proportionate deduction, 20% co-pay
+above 60, per-procedure sub-limits, 24-hour/15-day claim deadlines, no-claim
+bonus reset, 15-day free look, non-disclosure voiding the policy. Deliberately
+fair clauses (utilities and outgoings, scheduled premises, recitals) are
+correctly unflagged.
+
+The "phone photo" is a synthesised one, and worth being precise about: a rendered
+page photographed under simulated conditions — 1.6° rotation, slight perspective,
+a lighting gradient across the sheet, sub-pixel blur, JPEG quality 72, on a dark
+desk background. Not a capture from a real handset. It exercises the real vision
+OCR path end to end, and the quotes it produced are verbatim against the
+transcription, which is the invariant that matters.
+
+Scores saturate at 99 for both samples. That is the intended behaviour of the
+exponential — these are genuinely bad documents with two or three critical
+findings each — but it does mean the score cannot distinguish "very bad" from
+"appalling". Noted in NEXT_STEPS.md rather than retuned, because lowering the
+saturation constant would compress the useful middle of the range where real
+documents mostly sit.

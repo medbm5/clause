@@ -202,3 +202,32 @@ Newest phase last.
   from the page, so its provenance has to travel with it.
 - **The footer disclaimer is `print-hide` and the report carries its own printed
   disclaimer block.** Both printing meant two copies at the end of the printout.
+
+## Phase 6 — Real-key pass
+
+- **`retrievalMinScore` raised from 0.28 to 0.45, on measured evidence.** Across
+  both sample documents the intended pattern is the top match for every
+  substantive clause at 0.626–0.891, while non-clause material — title block,
+  recitals, execution block — peaks at 0.54. At 0.45 the same 17 distinct
+  patterns are still retrieved as at 0.28, matches per clause fall from 5.0 to
+  4.5, and recitals correctly match nothing at all. Above 0.55 real signal starts
+  disappearing (clause 2 "TERM" matches at 0.557). The old floor of 0.28 was
+  below the noise level, so it was spending prompt space on irrelevant evidence.
+- **The analysis prompt now calibrates confidence explicitly and forbids 1.0.**
+  The first live run returned confidence 0.90–1.00 for all sixteen findings,
+  including several 1.00s. Nothing read from an extract of a document, without
+  its annexures or schedule, is certain. With banded guidance the same document
+  returns 0.85–0.95 with genuine variation.
+- **The prompt gained a self-check against reassuring findings.** A live run
+  flagged the deliberately fair utilities clause as `low` with the headline
+  "Standard utility and maintenance charges" — a finding whose own words said it
+  was not one. The rule is now explicit: if the most accurate headline would call
+  the clause standard, normal or fair, return nothing for it. That clause is now
+  correctly unflagged.
+- **`SAMPLE_DOCS` in `lib/config.ts` is the single source of the sample
+  filenames, labels, page counts and clause counts,** asserted by
+  `scripts/make-samples.ts` and read by both the sample picker and the pipeline.
+  The assertion immediately caught that the generated documents are 3 pages, not
+  the 4 the picker claimed.
+- **Sample PDFs are committed.** A fresh clone with no key has to demo, and
+  regenerating them needs a dev dependency and a script run.
