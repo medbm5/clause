@@ -67,3 +67,46 @@ Newest phase last.
   clause tops out at 0.45. So 0.28 admits noise, and the evidence points at
   ~0.45. Tuning belongs in Phase 6 against whole real documents, not against
   probes.
+
+## Phase 2 — Pipeline core
+
+- **Pattern similarity is measured server-side, never reported by the model.**
+  The analyser returns `patternIds` it relied on; `analyze.ts` intersects those
+  with the clause's retrieval results and attaches the real cosine score. A
+  model-supplied similarity would be a number the UI renders as fact and nobody
+  computed.
+- **Quotes are verified by mapping back to source offsets.** Models reproduce
+  wording faithfully but normalise whitespace, so an exact `includes` check
+  alone would null out most valid quotes. `verifyQuote` tries exact first, then
+  a whitespace-insensitive search that returns a slice of the *clause*, never of
+  the model's reply — so the rendered quote is verbatim by construction.
+- **The mock fixtures compute their own score, verdict and counts through
+  `score.ts`,** and pass every quote through `verifyQuote`. A fixture therefore
+  cannot claim a verdict its findings don't support, and a typo in fixture copy
+  degrades to a missing quote rather than a fabricated one.
+- **The insurance fixture was rewritten as a genuinely better policy to reach
+  its specified `negotiate_first` verdict honestly.** Seven substantial findings
+  scored 74, which the thresholds read as `do_not_sign_as_is`. Rather than
+  shaving confidences to hit a target — which would have made the numbers
+  dishonest — the fixture document itself changed: the disease-wise sub-limit
+  clause was removed, the no-claim bonus now steps down instead of resetting to
+  nil, joint replacement waits 24 months rather than 48, and day-care cover is
+  explicit. It now scores 66 with six findings, and — this is the point — every
+  *unflagged* clause in it is genuinely standard practice, so the report's
+  silence on them is truthful.
+- **`meta.model` is `'mock'` in mock mode.** Reporting a model name for a run
+  that called no model would be a small lie in a field a client might read.
+- **The in-memory concurrency guard is 4 simultaneous analyses per instance.**
+  The brief rules out real rate limiting; this only stops one person opening
+  five tabs and stalling a warm instance for a minute.
+- **File bytes are read before the stream is returned.** Once a `Response` is
+  handed back, the request body is not guaranteed to still be readable, and the
+  producer callback runs after that point.
+- **Errors are delivered as `error` events inside a 200 NDJSON stream, not as
+  HTTP error codes.** The client has one code path for everything the server
+  says, and an actionable message always reaches the UI — which is what
+  "never let the demo hard-fail" requires.
+- **Classification and segmentation both degrade instead of throwing.**
+  Classify falls back to keyword counting; segmentation falls back to the
+  heuristic pass if the LLM fallback fails or returns less than the heuristics
+  found. Only "no readable text at all" ends a run.

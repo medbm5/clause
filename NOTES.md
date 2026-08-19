@@ -38,3 +38,22 @@ A running log of what was tried, what broke, and what not to try again.
   0.623–0.784, best-but-wrong match on a pure recital clause 0.453. Conclusion:
   the KB discriminates well, but `retrievalMinScore: 0.28` is far below the
   noise floor. Revisit in Phase 6.
+
+## Phase 2
+
+- Bash heredocs choked again on the fixture file; both large data files
+  (`patterns.ts`, `fixtures.ts`) were written with the Write tool.
+- Verified against the running dev server rather than by reading code:
+  `curl -sN -F sample=rental` yields 24 NDJSON lines — 10 stage, 1 meta,
+  1 clauses, 11 finding, 1 done — with `done.report` valid (16 clauses,
+  11 findings, score 97, verdict `do_not_sign_as_is`, every clauseId resolving,
+  every quote verbatim).
+- Progressive delivery measured on the insurance sample: first finding at
+  3.28 s, last at 5.70 s, 2.4 s of spread. Nothing is buffered.
+- Error paths confirmed live: a 12 MB upload, a `text/plain` upload and a
+  request with no file each return a single actionable `error` event and no
+  crash. A corrupt PDF cannot be tested in mock mode — the fixture replay never
+  reaches extraction — so that one is checked against the live pipeline later.
+- `Math.hypot(...vector)` with a 1536-element spread is fine on Node 24, but it
+  is worth remembering the argument-count ceiling exists if the dimension ever
+  grows.
