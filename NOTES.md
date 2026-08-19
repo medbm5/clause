@@ -75,3 +75,19 @@ A running log of what was tried, what broke, and what not to try again.
   they were made case-insensitive. Not a product bug.
 - Measured on a warm dev server: sample click → first flag counted at 3.3 s,
   full report at 8.4 s, no console or page errors.
+
+## Phase 4
+
+- `eslint-config-next` in Next 16 carries React Compiler rules that reject two
+  things I had written: a `setState` called synchronously inside an effect, and a
+  counter mutated during render to stagger the flag fly-in. Both were genuine
+  smells — the first became a derived value, the second a precomputed
+  `arrivalOrder` map. Worth knowing the linter enforces this now.
+- First pass at the pipeline layout left a large empty block at the top of the
+  document column, because the gutter's stage list shared a grid row with it and
+  sized that row. Fixed by lifting the stage list out of the marked page into a
+  header row that uses the same shared `PAGE_GRID` geometry.
+- The scan line initially spanned both columns; clipped to the document column.
+- Verified in Chrome mid-run: 16 clauses on screen, 4 flags landed, 4 underline
+  groups, a two-line wrapping quote underlined correctly across both fragments,
+  and the gutter flag aligned to its clause. No console errors.

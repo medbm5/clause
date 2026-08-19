@@ -7,8 +7,9 @@ import { Disclaimer, PrivacyNote } from '@/components/intake/disclaimer';
 import { DropZone } from '@/components/intake/drop-zone';
 import { Hero } from '@/components/intake/hero';
 import { SamplePicker } from '@/components/intake/sample-picker';
+import { ScanStage } from '@/components/pipeline/scan-stage';
 import { useAnalysis } from '@/lib/use-analysis';
-import { STAGE_LABELS, STAGE_ORDER, type SampleId } from '@/lib/types';
+import type { SampleId } from '@/lib/types';
 
 const SAMPLE_NAMES: Record<SampleId, string> = {
   rental: '11-month rental agreement, Bengaluru',
@@ -79,49 +80,12 @@ export function Experience({ mock }: { mock: boolean }) {
 
           {screen === 'pipeline' ? (
             <motion.div key="pipeline" {...fade}>
-              <p className="u-mono text-[var(--registrar)]">Reviewing</p>
-              <h1 className="u-display mt-3 text-28 text-[var(--ink)] sm:text-40">
-                {state.title ?? state.submittedName}
-              </h1>
-
-              <ol className="mt-8 space-y-2" aria-live="polite">
-                {STAGE_ORDER.map((id) => {
-                  const stage = state.stages[id];
-                  return (
-                    <li key={id} className="flex items-baseline gap-3">
-                      <span
-                        className={
-                          stage.status === 'done'
-                            ? 'u-mono text-[var(--registrar)]'
-                            : stage.status === 'active'
-                              ? 'u-mono u-breathe text-[var(--registrar)]'
-                              : 'u-mono text-[var(--rule)]'
-                        }
-                      >
-                        {stage.status === 'done' ? '✓' : '—'}
-                      </span>
-                      <span
-                        className={
-                          stage.status === 'pending'
-                            ? 'text-15 text-[var(--ink-soft)]'
-                            : 'text-15 text-[var(--ink)]'
-                        }
-                      >
-                        {STAGE_LABELS[id]}
-                        {stage.detail ? (
-                          <span className="u-mono ml-2 text-[var(--ink-soft)]">
-                            {stage.detail}
-                          </span>
-                        ) : null}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-
-              <p className="u-mono mt-8 text-[var(--ink-soft)]">
-                {state.clauses.length} clauses · {state.findings.length} flagged
-              </p>
+              <ScanStage
+                title={state.title ?? state.submittedName ?? 'Your document'}
+                clauses={state.clauses}
+                findings={state.findings}
+                stages={state.stages}
+              />
             </motion.div>
           ) : null}
 

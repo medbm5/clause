@@ -138,3 +138,33 @@ Newest phase last.
 - **Client-side upload validation duplicates the server's checks on purpose.**
   An obviously wrong file should cost nothing; the server still re-validates
   because a client check is a convenience, not a control.
+
+## Phase 4 — The scan
+
+- **The document column and the gutter are one CSS grid, with each clause row
+  using `grid-cols-subgrid`.** A flag therefore sits at its clause's vertical
+  position by construction. The alternative — measuring clause offsets with refs
+  and absolutely positioning flags — has to be re-run on every reflow, font load
+  and expand/collapse, and is wrong for a frame each time. Subgrid is never wrong.
+- **Grid columns come from utility classes, never an inline
+  `gridTemplateColumns`.** An inline style cannot be overridden at a breakpoint,
+  so the mobile single-column collapse would have silently never happened — the
+  gutter would have stayed a 300px column at 380px wide.
+- **The scan line is clipped to the document column** (`lg:right-[328px]`, the
+  gutter plus the gap). A line crossing the gutter reads as a page-wide loading
+  bar rather than as something reading the document.
+- **Reveal is monotonic.** The sweep repeats while analysis runs, but clause
+  opacity only ever increases: the first pass reveals the column, later passes
+  are just the line travelling. Re-dimming already-read text on every pass looked
+  like a fault.
+- **Underlines are measured per line fragment with `getClientRects()`.** A quote
+  that wraps produces several inline boxes, and an absolutely positioned child of
+  the span would only ever cover the first — so each fragment gets its own SVG
+  path, which is also what a person with a pen does. Re-measured on resize and
+  on `document.fonts.ready`, because web fonts land after first paint and shift
+  the text out from under the line.
+- **The wobble is deterministic in the fragment's width.** A random wobble would
+  redraw itself differently on every re-render, which reads as jitter.
+- **The stage list sits in the gutter beside the heading, not beside the first
+  clause.** Putting it in a grid row with the document column made that row as
+  tall as the stage list and opened a ~300px dead gap above the first clause.
