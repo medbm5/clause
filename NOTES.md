@@ -186,3 +186,20 @@ documents mostly sit.
   scroll at either width, no console or page errors on any screen.
 - The score dial mid-spring reads lower than the final value — worth knowing when
   asserting on it. It settles to 97 for the rental fixture.
+
+## §12 acceptance — verified by doing, not by reading
+
+| # | Item | Result |
+|---|---|---|
+| 1 | `npm run build` with no API key | Passes, exit 0, with `.env.local` moved aside and `OPENAI_API_KEY`/`MOCK_MODE` unset |
+| 2 | Both samples complete in mock mode | rental → `do_not_sign_as_is`, 97, 16 clauses/11 findings; insurance → `negotiate_first`, 66, 14/6. Both reach `done`, `source: mock`, `model: mock` |
+| 3 | With a key: rental ≥ 6 findings, ≥ 1 critical, quotes verbatim, clauseIds valid | 14 findings, 2 critical, every quote verbatim, every clauseId resolving |
+| 4 | Findings appear progressively | Mock: first flag 3.3 s, last 5.7 s. Live: finding events at stream lines 9–22, well before `done` |
+| 5 | Corrupt file, 12 MB file, scanned PDF each clear and no crash | All four (plus an empty file and a photo with no text) return one actionable `error` event, `recoverable: true` |
+| 6 | One LLM batch failing still yields a usable report | Two batches, one deliberately oversized: surviving batch's finding emitted, 1 failure reported, report compiled, nothing thrown |
+| 7 | Usable at 380px, no horizontal scroll | `scrollWidth == innerWidth` on intake, scan and report at 380px and 1280px |
+| 8 | Full flow operable by keyboard with visible focus | Tab → file input → sample card, Enter runs it, Tab to a gutter flag, Enter expands it. 2px solid registrar outline throughout |
+| 9 | `prefers-reduced-motion` removes sweep and fly-ins | Scan-line elements 0 (vs 1), flags at opacity 1 with no transform, underlines at `stroke-dashoffset: 0` — instant final state |
+| 10 | Print legible with all findings expanded | 12-page PDF: one column, every finding expanded under its clause, underlines preserved, disclaimer and demo-data notice on the last page |
+| 11 | No Lorem, placeholder or rounded gradient cards | Only radii in the codebase are 1px and 2px; the only `box-shadow` is the 1px inset paper edge; the only gradient is the scan line's trailing glow. The single "placeholder" match is a comment stating the fixtures are not placeholders |
+| 12 | `grep -rn "TODO\|any\|@ts-ignore"` clean | No `TODO`, no `@ts-ignore`, no `any` in a type position. The 97 raw matches are English words containing "any" ("Company", "anything", "many"). Enforced by `@typescript-eslint/no-explicit-any`, which gates `verify` |
