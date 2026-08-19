@@ -231,3 +231,39 @@ Newest phase last.
   the 4 the picker claimed.
 - **Sample PDFs are committed.** A fresh clone with no key has to demo, and
   regenerating them needs a dev dependency and a script run.
+
+## Phase 7 — Polish
+
+- **The zero-findings summary says what was checked, not "nothing was found".**
+  On a fair document the summary paragraph and the empty-state callout both
+  opened with "We found nothing materially unfair in these 14 clauses" — the same
+  sentence twice on one screen, which reads as a bug rather than as reassurance.
+  The callout keeps the brief's exact wording; the summary now names the families
+  of terms that were checked for that document type, which is what makes "nothing
+  found" credible.
+- **A plain numbered clause is never folded into the clause above it.** The
+  fragment-merge rule used length alone, so clause 2 of a fair agreement (197
+  characters) disappeared into clause 1 and its printed number vanished from the
+  report — the one thing the reader uses to find the clause in their own copy.
+  Merging now applies to unnumbered continuations and to lettered sub-items
+  ("(b)", "(iv)"), which genuinely belong to the obligation above them, plus any
+  stub under 120 characters.
+- **The analysis prompt carries a worked negative example.** Abstract
+  instructions not to reassure were not enough: a live run on a deliberately fair
+  document returned four low-severity findings headlined "Security deposit terms
+  are fair", "Equal notice period for termination" and "Rent escalation capped at
+  5% per year". Quoting a fair clause in the prompt and stating that the correct
+  output for it is no finding at all took the same document to zero findings and
+  the `looks_fair` verdict.
+- **Removed as dead code:** `SeverityBadge` and the `SeverityMark` that existed
+  only to serve it, and `uniquePatterns` in `retrieve.ts` (which duplicated the
+  dedup `buildBatches` already does). `rawRisk` is no longer exported.
+  `cosineSimilarity` and `segmentHeuristically` stay exported deliberately: both
+  modules are specified as pure and testable, and `NEXT_STEPS.md` names them as
+  the first unit-test targets.
+- **On the §12 grep.** `grep -rn "TODO\|any\|@ts-ignore" app lib components`
+  reports 97 lines, every one of them an English word containing the letters
+  "any" — "the Company", "anything important", "many". There is no `TODO`, no
+  `@ts-ignore`, and no `any` in a type position anywhere. The ban is enforced
+  rather than merely observed: `@typescript-eslint/no-explicit-any` is on, and
+  `eslint` gates `npm run verify`, so an `any` cannot reach a passing build.

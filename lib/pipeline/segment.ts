@@ -13,6 +13,8 @@ import type { Clause } from '@/lib/types';
  */
 
 const MIN_CLAUSE_CHARS = 200;
+/** Below this a fragment is a stub, whatever its numbering. */
+const STUB_CHARS = 120;
 const MAX_CLAUSE_CHARS = 2_500;
 const MIN_HEURISTIC_CLAUSES = 4;
 
@@ -159,7 +161,17 @@ function mergeFragments(drafts: Draft[]): Draft[] {
     const text = draftText(draft);
     const previous = merged[merged.length - 1];
 
-    if (previous && text.length < MIN_CLAUSE_CHARS) {
+    // A lettered or roman number — "(b)", "(iv)" — marks a sub-item, which
+    // belongs to the obligation above it. A plain "2" marks a clause of its own,
+    // and folding that away would lose the printed number the report shows and
+    // the reader searches their own copy for. Only genuinely tiny stubs merge
+    // regardless of numbering.
+    const isSubItem = draft.number !== null && draft.number.startsWith('(');
+    const mergeable =
+      text.length < STUB_CHARS ||
+      ((draft.number === null || isSubItem) && text.length < MIN_CLAUSE_CHARS);
+
+    if (previous && mergeable) {
       const label = draft.number ? `${draft.number} ` : '';
       const heading = draft.heading ? `${draft.heading}. ` : '';
       previous.body.push(`${label}${heading}${text}`.trim());

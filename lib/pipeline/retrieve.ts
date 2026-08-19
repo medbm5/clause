@@ -1,6 +1,6 @@
 import { CONFIG } from '@/lib/config';
 import { patternsForDocType } from '@/lib/kb/patterns';
-import type { DocType, PatternMatch, RiskPattern } from '@/lib/types';
+import type { DocType, PatternMatch } from '@/lib/types';
 
 /**
  * Retrieval is deliberately pure: cosine similarity over precomputed vectors,
@@ -68,27 +68,4 @@ export function retrieveForClauses(
   return clauseVectors.map((vector) =>
     retrieveForVector(vector, docType, kbVectors, options),
   );
-}
-
-/**
- * The distinct patterns behind a set of matches, in first-seen order. This is
- * what gets sent to the analyser as evidence, so it must dedupe: a batch of
- * five clauses commonly retrieves the same deposit pattern three times.
- */
-export function uniquePatterns(
-  matchSets: PatternMatch[][],
-  byId: ReadonlyMap<string, RiskPattern>,
-): RiskPattern[] {
-  const seen = new Set<string>();
-  const patterns: RiskPattern[] = [];
-  for (const matches of matchSets) {
-    for (const match of matches) {
-      if (seen.has(match.patternId)) continue;
-      const pattern = byId.get(match.patternId);
-      if (!pattern) continue;
-      seen.add(match.patternId);
-      patterns.push(pattern);
-    }
-  }
-  return patterns;
 }

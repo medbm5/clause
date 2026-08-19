@@ -624,7 +624,7 @@ function buildReport(fixture: Fixture): RiskReport {
     title: fixture.title,
     verdict: verdictFor(score, findings),
     score,
-    summary: fixture.summary || deterministicSummary(findings, clauses.length, false),
+    summary: fixture.summary || deterministicSummary(findings, clauses.length, fixture.docType),
     counts: countBySeverity(findings),
     clauses,
     findings,

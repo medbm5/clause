@@ -168,3 +168,21 @@ findings each — but it does mean the score cannot distinguish "very bad" from
 "appalling". Noted in NEXT_STEPS.md rather than retuned, because lowering the
 saturation constant would compress the useful middle of the range where real
 documents mostly sit.
+
+## Phase 7
+
+- The fair-document control was the most useful single test of the build. It
+  found two bugs nothing else did: the reassuring-findings problem (four "findings"
+  whose own headlines said the clauses were fair) and a numbered clause being
+  swallowed by the fragment-merge rule. Both are invisible on a bad document,
+  because on a bad document everything gets flagged anyway.
+- Two harness false alarms, both mine, both worth remembering:
+  `locator.count()` counts DOM presence rather than visibility, so the ten hidden
+  print-only finding panels made "one panel open" read as twelve; and asserting a
+  dialog is gone 300ms after Escape races the exit animation. Escape, backdrop
+  click and focus restoration all work correctly with a proper wait.
+- Verified in a real browser after every change above, at 1280px and 380px:
+  intake, scan, report, expanded finding, empty state, print. No horizontal
+  scroll at either width, no console or page errors on any screen.
+- The score dial mid-spring reads lower than the final value — worth knowing when
+  asserting on it. It settles to 97 for the rental fixture.

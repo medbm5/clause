@@ -155,7 +155,7 @@ export async function runPipeline(input: RunInput, emit: EmitFn): Promise<void> 
     findings,
     clauseCount: clauses.length,
     title,
-    docTypeIsOther: docType === 'other',
+    docType,
   });
 
   const report: RiskReport = {

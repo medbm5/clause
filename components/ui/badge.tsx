@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { SEVERITY_LABEL, type Severity } from '@/lib/types';
+import type { Severity } from '@/lib/types';
 import { cn } from '@/lib/utils/cn';
 
 /**
@@ -15,32 +15,6 @@ export const SEVERITY_COLOR: Record<Severity, string> = {
   low: 'var(--flag-low)',
   fair: 'var(--flag-fair)',
 };
-
-/** A small filled square in the severity colour. The severity's whole identity. */
-export function SeverityMark({
-  severity,
-  className,
-}: {
-  severity: Severity;
-  className?: string;
-}) {
-  return (
-    <span
-      aria-hidden
-      className={cn('inline-block h-[9px] w-[9px] shrink-0 rounded-[1px]', className)}
-      style={{ backgroundColor: SEVERITY_COLOR[severity] }}
-    />
-  );
-}
-
-export function SeverityBadge({ severity }: { severity: Severity }) {
-  return (
-    <span className="u-mono inline-flex items-center gap-1.5 text-[var(--ink-soft)]">
-      <SeverityMark severity={severity} />
-      {SEVERITY_LABEL[severity]}
-    </span>
-  );
-}
 
 /** The mono utility chip: `Demo data`, counts, stage labels, meta values. */
 export function Chip({

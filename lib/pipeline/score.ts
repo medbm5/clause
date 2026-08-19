@@ -3,6 +3,7 @@ import { completeText } from '@/lib/openai';
 import {
   EMPTY_COUNTS,
   SEVERITY_WEIGHT,
+  type DocType,
   type Finding,
   type Severity,
   type Verdict,
@@ -31,7 +32,7 @@ export function countBySeverity(findings: Finding[]): Record<Severity, number> {
   return counts;
 }
 
-export function rawRisk(findings: Finding[]): number {
+function rawRisk(findings: Finding[]): number {
   return findings.reduce(
     (total, finding) =>
       total + SEVERITY_WEIGHT[finding.severity] * clamp01(finding.confidence),
@@ -67,15 +68,34 @@ Rules:
 - No greeting, no sign-off, no bullet points. Two or three sentences of prose.
 - Do not recommend a lawyer; the interface says that already.`;
 
+/**
+ * What the review looked for, by document type. Used in the summary when
+ * nothing was flagged: "we found nothing" is only reassuring if the reader can
+ * see what was actually checked.
+ */
+const CHECKED_AGAINST: Record<DocType, string> = {
+  rental:
+    'the deposit, lock-in, notice, repair, entry, exit-charge and dispute terms that most often run one way in Indian rental agreements',
+  health_insurance:
+    'the waiting periods, room-rent and co-payment limits, sub-limits, claim deadlines and renewal terms that most often bite in Indian health policies',
+  other:
+    'the one-sided terms, hidden costs and asymmetric rights that most often catch consumers out',
+};
+
 /** A summary that needs no model. Used when the summary call fails, or in the
  * degenerate cases where there is nothing for a model to add. */
 export function deterministicSummary(
   findings: Finding[],
   clauseCount: number,
-  docTypeIsOther: boolean,
+  docType: DocType,
 ): string {
+  const docTypeIsOther = docType === 'other';
+
   if (findings.length === 0) {
-    return `We found nothing materially unfair in these ${clauseCount} clauses. That's rarer than it should be — read the summary of what we checked, and keep your copy of the signed document.`;
+    // Deliberately not the "nothing materially unfair" sentence — the report
+    // already says that in the empty state, and hearing it twice on one screen
+    // reads as a bug rather than as reassurance.
+    return `We read all ${clauseCount} clauses and checked each of them against ${CHECKED_AGAINST[docType]}. None of them appeared here in a form that shifts material risk onto you.`;
   }
 
   const worst = [...findings].sort(
@@ -116,12 +136,13 @@ export async function summariseFindings(options: {
   findings: Finding[];
   clauseCount: number;
   title: string;
-  docTypeIsOther: boolean;
+  docType: DocType;
 }): Promise<string> {
-  const { findings, clauseCount, title, docTypeIsOther } = options;
+  const { findings, clauseCount, title, docType } = options;
+  const docTypeIsOther = docType === 'other';
 
   if (findings.length === 0) {
-    return deterministicSummary(findings, clauseCount, docTypeIsOther);
+    return deterministicSummary(findings, clauseCount, docType);
   }
 
   const ranked = [...findings].sort(
@@ -161,6 +182,6 @@ export async function summariseFindings(options: {
       label: 'summary',
     });
   } catch {
-    return deterministicSummary(findings, clauseCount, docTypeIsOther);
+    return deterministicSummary(findings, clauseCount, docType);
   }
 }
