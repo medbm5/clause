@@ -57,3 +57,21 @@ A running log of what was tried, what broke, and what not to try again.
 - `Math.hypot(...vector)` with a 1536-element spread is fine on Node 24, but it
   is worth remembering the argument-count ceiling exists if the dimension ever
   grows.
+
+## Phase 3
+
+- The document preview in the hero rendered as an empty card at first: the
+  `u-paper` background is absolutely positioned and came earlier in the DOM than
+  the clause lines, so it painted over them. Absolutely positioned siblings sit
+  above static ones — the content wrapper needs `relative` too. Worth
+  remembering for the report's document column, which uses the same technique.
+- Verified the UI by driving real Chrome with Playwright, installed **outside**
+  the repo (in the job's scratch directory) so the project keeps its clean
+  dependency list — the brief rules out a test framework, but not looking at the
+  thing with your own eyes.
+- Two false alarms from the harness, both the same mistake: `.u-mono` applies
+  `text-transform: uppercase`, and Playwright's `innerText` returns *rendered*
+  text, so assertions against "16 clauses · 11 flagged" silently failed until
+  they were made case-insensitive. Not a product bug.
+- Measured on a warm dev server: sample click → first flag counted at 3.3 s,
+  full report at 8.4 s, no console or page errors.

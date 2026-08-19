@@ -110,3 +110,31 @@ Newest phase last.
   Classify falls back to keyword counting; segmentation falls back to the
   heuristic pass if the LLM fallback fails or returns less than the heuristics
   found. Only "no readable text at all" ends a run.
+
+## Phase 3 — Intake
+
+- **`app/page.tsx` is a server component that renders `components/experience.tsx`.**
+  The brief calls `page.tsx` "the whole experience", but mock mode is a runtime
+  fact — no key present, or `MOCK_MODE=1` — and the `Demo data` chip has to be
+  truthful on the very first frame, not once a report comes back and reveals it.
+  A server page reading `isMockMode()` and passing it down is the only way to do
+  that; the client tree needs hooks, so it cannot be the same file. `page.tsx`
+  is `force-dynamic` for the same reason: a statically prerendered page would
+  bake in whichever mode the build machine happened to have.
+- **`useAnalysis` lives in `lib/use-analysis.ts` and reduces over `PipelineEvent`
+  directly.** Because the reducer's action type *is* the server's event type,
+  there is no second contract to keep in sync — anything the server can say, the
+  client can already hold.
+- **Duplicate findings are ignored by (clauseId, headline).** A retried batch or
+  a replayed stream should not double a flag in the margin.
+- **`sheet.tsx` and `tooltip.tsx` earn their place rather than being built
+  because the tree lists them:** the sheet becomes the severity/score
+  explanation panel on the report, and the tooltip explains the confidence and
+  similarity numbers shown in mono. Both are wired up in Phase 5 — nothing is
+  built here that nothing uses.
+- **Sample sub-labels state real page and clause counts,** which
+  `scripts/make-samples.ts` asserts against the PDFs it generates in Phase 6, so
+  the label cannot drift from the document it describes.
+- **Client-side upload validation duplicates the server's checks on purpose.**
+  An obviously wrong file should cost nothing; the server still re-validates
+  because a client check is a convenience, not a control.

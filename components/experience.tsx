@@ -1,0 +1,170 @@
+'use client';
+
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { Chip } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Disclaimer, PrivacyNote } from '@/components/intake/disclaimer';
+import { DropZone } from '@/components/intake/drop-zone';
+import { Hero } from '@/components/intake/hero';
+import { SamplePicker } from '@/components/intake/sample-picker';
+import { useAnalysis } from '@/lib/use-analysis';
+import { STAGE_LABELS, STAGE_ORDER, type SampleId } from '@/lib/types';
+
+const SAMPLE_NAMES: Record<SampleId, string> = {
+  rental: '11-month rental agreement, Bengaluru',
+  insurance: 'Family floater health policy',
+};
+
+/**
+ * One route, three states, cross-faded. This component owns which state is on
+ * screen; `useAnalysis` owns everything the stream says.
+ */
+export function Experience({ mock }: { mock: boolean }) {
+  const { state, start, reset } = useAnalysis();
+  const reduceMotion = useReducedMotion();
+
+  const screen =
+    state.status === 'idle'
+      ? 'intake'
+      : state.status === 'error'
+        ? 'error'
+        : state.status === 'done'
+          ? 'report'
+          : 'pipeline';
+
+  const fade = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
+    transition: { duration: reduceMotion ? 0 : 0.22 },
+  };
+
+  return (
+    <div className="flex min-h-full flex-col">
+      <header className="print-hide border-b border-[var(--rule)]">
+        <div className="mx-auto flex w-full max-w-[1180px] items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
+          <span className="u-mono text-[var(--ink)]">Clause</span>
+          {mock ? (
+            <Chip tone="registrar" title="No API key is configured, so this run replays a written-out example rather than analysing a live document.">
+              Demo data
+            </Chip>
+          ) : null}
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-[1180px] flex-1 px-5 py-12 sm:px-8 sm:py-16">
+        <AnimatePresence mode="wait">
+          {screen === 'intake' ? (
+            <motion.div key="intake" {...fade}>
+              <Hero />
+
+              <div className="mt-12 grid gap-8 md:mt-14 md:grid-cols-[1.15fr_1fr] md:gap-14">
+                <div className="space-y-6">
+                  <DropZone
+                    onFile={(file) => void start({ file, name: file.name })}
+                  />
+                  <SamplePicker
+                    onSelect={(sample) =>
+                      void start({ sample, name: SAMPLE_NAMES[sample] })
+                    }
+                  />
+                </div>
+                <div className="space-y-3 md:pt-1">
+                  <Disclaimer />
+                  <PrivacyNote />
+                </div>
+              </div>
+            </motion.div>
+          ) : null}
+
+          {screen === 'pipeline' ? (
+            <motion.div key="pipeline" {...fade}>
+              <p className="u-mono text-[var(--registrar)]">Reviewing</p>
+              <h1 className="u-display mt-3 text-28 text-[var(--ink)] sm:text-40">
+                {state.title ?? state.submittedName}
+              </h1>
+
+              <ol className="mt-8 space-y-2" aria-live="polite">
+                {STAGE_ORDER.map((id) => {
+                  const stage = state.stages[id];
+                  return (
+                    <li key={id} className="flex items-baseline gap-3">
+                      <span
+                        className={
+                          stage.status === 'done'
+                            ? 'u-mono text-[var(--registrar)]'
+                            : stage.status === 'active'
+                              ? 'u-mono u-breathe text-[var(--registrar)]'
+                              : 'u-mono text-[var(--rule)]'
+                        }
+                      >
+                        {stage.status === 'done' ? '✓' : '—'}
+                      </span>
+                      <span
+                        className={
+                          stage.status === 'pending'
+                            ? 'text-15 text-[var(--ink-soft)]'
+                            : 'text-15 text-[var(--ink)]'
+                        }
+                      >
+                        {STAGE_LABELS[id]}
+                        {stage.detail ? (
+                          <span className="u-mono ml-2 text-[var(--ink-soft)]">
+                            {stage.detail}
+                          </span>
+                        ) : null}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+
+              <p className="u-mono mt-8 text-[var(--ink-soft)]">
+                {state.clauses.length} clauses · {state.findings.length} flagged
+              </p>
+            </motion.div>
+          ) : null}
+
+          {screen === 'report' && state.report ? (
+            <motion.div key="report" {...fade}>
+              <p className="u-mono text-[var(--registrar)]">Report</p>
+              <h1 className="u-display mt-3 text-28 text-[var(--ink)] sm:text-40">
+                {state.report.title}
+              </h1>
+              <p className="mt-4 max-w-[62ch] text-17 text-[var(--ink-soft)]">
+                {state.report.summary}
+              </p>
+              <p className="u-mono mt-6 text-[var(--ink-soft)]">
+                Score {state.report.score} · {state.report.findings.length} findings ·{' '}
+                {state.report.clauses.length} clauses
+              </p>
+              <Button className="mt-8" onClick={reset}>
+                Review another document
+              </Button>
+            </motion.div>
+          ) : null}
+
+          {screen === 'error' && state.error ? (
+            <motion.div key="error" {...fade} className="max-w-[52ch]">
+              <p className="u-mono text-[var(--flag-high)]">
+                {state.error.recoverable ? "Can't read this one" : 'Something broke'}
+              </p>
+              <h1 className="u-display mt-3 text-28 text-[var(--ink)]">
+                {state.error.message}
+              </h1>
+              <Button className="mt-7" variant="primary" onClick={reset}>
+                Try another document
+              </Button>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </main>
+
+      <footer className="border-t border-[var(--rule)]">
+        <div className="mx-auto w-full max-w-[1180px] px-5 py-5 sm:px-8">
+          <Disclaimer />
+        </div>
+      </footer>
+    </div>
+  );
+}
