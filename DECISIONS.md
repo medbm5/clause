@@ -267,3 +267,24 @@ Newest phase last.
   `@ts-ignore`, and no `any` in a type position anywhere. The ban is enforced
   rather than merely observed: `@typescript-eslint/no-explicit-any` is on, and
   `eslint` gates `npm run verify`, so an `any` cannot reach a passing build.
+
+## Post-deploy — a dangerous failure mode found in production
+
+- **When every analysis batch fails, the run now stops with an honest error
+  instead of reporting `looks_fair` with a score of 0.** The OpenAI account ran
+  out of credits after deployment, which made every model call fail. The pipeline
+  degraded exactly as designed — and produced a report telling the reader that a
+  document with a nine-month lock-in forfeiting Rs. 4,50,000 "shifts no material
+  risk onto you". That is the worst thing this product could say. Zero findings
+  means one of two completely different things, and the code was conflating them:
+  *nothing is wrong with this document* versus *we learned nothing about this
+  document*. The guard is now `findings.length === 0 && skipped > 0` → recoverable
+  error.
+- **A partial report says so in its summary.** The analyse stage already reported
+  skipped batches, but the stage list is gone by the time the report renders, so
+  the only visible signal was absent. The caveat is prepended to the summary
+  because that string is what appears on screen, in the copied text and in print.
+- **Why the §12 test missed it.** "One LLM batch failing still yields a usable
+  report" was verified with one batch failing and one succeeding. The all-fail
+  case is a different branch and a far more dangerous one. Worth remembering that
+  a test of partial failure is not a test of total failure.

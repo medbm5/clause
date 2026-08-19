@@ -147,6 +147,23 @@ export async function runPipeline(input: RunInput, emit: EmitFn): Promise<void> 
       (skipped > 0 ? ` · ${skipped} batch${skipped === 1 ? '' : 'es'} skipped` : ''),
   });
 
+  // If nothing was reviewed successfully, we know nothing about this document —
+  // and must not say so in the language of a clean bill of health. Reporting
+  // "looks fair, score 0" here would tell someone their one-sided agreement is
+  // safe, which is the worst thing this product could do. A partial report is a
+  // successful demo; a confidently wrong one is not.
+  if (findings.length === 0 && skipped > 0) {
+    emit({
+      type: 'error',
+      message:
+        skipped === batches.length
+          ? "We couldn't review this document just now — the analysis service didn't respond. Nothing here reflects your document, so please try again in a few minutes."
+          : "We couldn't review enough of this document to give you a result. Please try again in a few minutes.",
+      recoverable: true,
+    });
+    return;
+  }
+
   // --- compile -------------------------------------------------------------
   emit({ type: 'stage', id: 'compile', status: 'active' });
 
@@ -158,12 +175,20 @@ export async function runPipeline(input: RunInput, emit: EmitFn): Promise<void> 
     docType,
   });
 
+  // A partial report has to admit it is partial, in the summary, because that is
+  // the one place the reader sees on screen, in the copied text and in print.
+  // The stage detail says it too, but the stage list is gone by then.
+  const caveat =
+    skipped > 0
+      ? `Part of this document couldn't be reviewed — ${skipped} of ${batches.length} sections failed, so treat this report as incomplete. `
+      : '';
+
   const report: RiskReport = {
     docType,
     title,
     verdict: verdictFor(score, findings),
     score,
-    summary,
+    summary: caveat + summary,
     counts: countBySeverity(findings),
     clauses,
     findings,
