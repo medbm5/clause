@@ -39,7 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-!.env.example
 
 .vercel
 .env*
+
+# Keep the committed example, despite the .env* rule above.
+!.env.example
