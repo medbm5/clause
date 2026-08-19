@@ -9,8 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "verify": "tsc --noEmit && eslint && next build",
-    "kb:embed": "tsx scripts/embed-kb.ts",
-    "samples": "tsx scripts/make-samples.ts"
+    "kb:embed": "node --env-file-if-exists=.env.local --import tsx scripts/embed-kb.ts",
+    "samples": "node --env-file-if-exists=.env.local --import tsx scripts/make-samples.ts"
   },
   "dependencies": {
     "lucide-react": "^1.33.0",

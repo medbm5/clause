@@ -34,3 +34,36 @@ Newest phase last.
   `text-embedding-3-small` returns 1536 dimensions, so Phase 1 embeds for real
   and Phase 6 runs live. Mock mode is still built as a first-class path in
   Phase 2 and remains the behaviour whenever the key is absent.
+
+## Phase 1 — Knowledge base
+
+- **The brief's required rental topics map 1:1 onto the 17 rental patterns, and
+  its health topics onto the 17 health patterns.** Two bullets each name two
+  concerns ("security deposit size *and* deduction discretion";
+  "specific-illness *and* maternity waiting periods"), and each is written as a
+  single pattern rather than two. That is not a compromise to hit the count: a
+  real deposit clause states the amount and the discretion in the same breath
+  ("ten months' rent … refundable after such deductions as the Lessor may deem
+  fit"), and policies list maternity inside the same waiting-period schedule, so
+  one pattern matching one clause is the correct granularity.
+- **`patternEmbeddingInput()` lives in `patterns.ts`, not in the script.** The
+  embedding input string is part of the knowledge base's contract; if the script
+  owned it, a future re-embed could silently use a different formula than the
+  committed vectors were built with.
+- **Vectors are rounded to 6 decimal places in the committed JSON.** Cosine
+  similarity is unchanged at that precision and the file drops to ~490 KB.
+- **Pseudo-embeddings are seeded from the pattern's own text** (FNV-1a hash into
+  xorshift32, then normalised to a unit vector) rather than from its index, so
+  the fallback file is deterministic across machines and no two patterns collide.
+  The model field is written as `pseudo:text-embedding-3-small` so any consumer
+  can detect mock-quality retrieval — `isPseudoEmbeddingFile()` reads it.
+- **`kb:embed` and `samples` run via `node --env-file-if-exists=.env.local
+  --import tsx`.** Avoids adding a dotenv dependency or a shared script helper,
+  and `-if-exists` means the keyless path stays the no-config default.
+- **Retrieval floor left at the brief's `0.28` for now, with a measurement
+  recorded for Phase 6.** Eleven hand-written probe clauses (deliberately worded
+  unlike `typicalLanguage`) retrieve the intended pattern at rank 1 in 10/10
+  scoreable cases; true positives score 0.62–0.78 while an irrelevant recital
+  clause tops out at 0.45. So 0.28 admits noise, and the evidence points at
+  ~0.45. Tuning belongs in Phase 6 against whole real documents, not against
+  probes.

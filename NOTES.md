@@ -21,3 +21,20 @@ A running log of what was tried, what broke, and what not to try again.
     available from that entry point.
 - `next/font/google` needs network at build time. It works here and on Vercel;
   it is unrelated to `OPENAI_API_KEY`, so a keyless build still succeeds.
+
+## Phase 1
+
+- First attempt at `patterns.ts` used a bash heredoc and was silently truncated
+  mid-string ("unexpected EOF while looking for matching `''`") — the command
+  exceeded the shell's length limit and nothing was written. Large source files
+  go through the Write tool from here on; heredocs are fine for small ones.
+- `tsx` resolves the `@/*` tsconfig path alias without extra configuration, so
+  scripts import from `@/lib/...` exactly like app code.
+- Top-level `await` fails under `tsx` for a file outside the project's module
+  scope ("not supported with the cjs output format"). Scripts wrap their body in
+  `async function main()` — `embed-kb.ts` already does.
+- Retrieval measurement with real embeddings (11 probes, wording deliberately
+  different from `typicalLanguage`): 10/10 rank-1 hits. Scores — true positives
+  0.623–0.784, best-but-wrong match on a pure recital clause 0.453. Conclusion:
+  the KB discriminates well, but `retrievalMinScore: 0.28` is far below the
+  noise floor. Revisit in Phase 6.
